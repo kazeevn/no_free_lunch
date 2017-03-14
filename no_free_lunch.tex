@@ -1,15 +1,42 @@
 \documentclass[a4paper]{article}
 \usepackage{polyglossia}
 \usepackage{amssymb,amsmath,amsthm,amsfonts}
+\usepackage{hyperref}
+\usepackage[xindy]{glossaries}
 
 \newtheorem{theorem}{Theorem}[section]
 \newtheorem{corollary}{Corollary}[theorem]
-\newtheorem{lemma}[theorem]{Lemma}
+\newtheorem{lemma}{Lemma}
 
 \title{The Lack of A Priori Distinctions Between Learning Algorithms aka
 a No Free Lunch Theorem for Learning}
 \author{Nikita Kazeev, based on David H. Wolpert}
 
+\newglossaryentry{OTS error}{
+  name=OTS error,
+  description={
+    \begin{equation}
+      P\left(q|d\right) = \frac{\delta(q \notin d_X)\pi(q)}{
+        \sum_q\left[\delta(q \notin d_X) \pi(q)\right]},
+    \end{equation}
+    where $\delta(z) \equiv 1$ if $z$ is true and $0$ otherwise.
+  }
+}
+
+\newglossaryentry{vertical}{
+  name=vertical,
+  description={
+    $P\left(d|f\right)$: iff $P\left(d|f\right)$ is independent
+    of the values $f(x,y_F)$ for $x \notin d_X$.
+  }
+}
+
+\newglossaryentry{$F$}{
+  name=$F$,
+  description={$f$ value space in}
+}
+
+\makeglossaries
 \begin{document}
 \maketitle
 \begin{abstract}
@@ -20,7 +47,6 @@ a No Free Lunch Theorem for Learning}
   algorithms there are ``as many'' targets on which each outperformes
   the other.
 \end{abstract}
-
 \section{Introduction}
 
 TODO paper link
@@ -31,14 +57,20 @@ Arrow. NFL is one more.
 We  make practical climes. Empirically ML works) However
 theory-side, a universal learner is impossible.
 
-\section{Formalizm}
+\section{Formalism}
+\printglossaries
+
+Integral
+\begin{equation}
+  \int A(f) df = \int_{\mathbf{R}^{rn}} A(f) df \prod_{i=0}^n\left[\delta\left(\sum_{j=i\times r}^{(i+1)\times r-1}f_j - 1\right) \prod_{j=i\times r}^{(i+1)\times r-1}\theta\left(f_j\right)  \right]
+\end{equation}
 
 \section{No Free Lunch}
 \begin{lemma}
-
 \begin{equation}
-  P(c|f,d) = \sum_{y_H,y_F,q}\delta\left[c,L\left(y_H, y_F\right)\right] P\left(y_H|q, d\right)
+  P(c|d,f) = \sum_{y_H,y_F,q}\delta\left[c,L\left(y_H, y_F\right)\right] P\left(y_H|q, d\right)
   P\left(y_F| q, f\right)P\left(q|d\right)
+  \label{lm:Pcdf}
 \end{equation}
 \end{lemma}
 
@@ -74,33 +106,99 @@ CONSIDER example with random guessing.
 
 \begin{theorem}
   For homogenious loss $L$, the uniform average over all $f$ of
-  $P\left(C|f,d\right)$ equals $\Lambda\left(c\right)/r$
+  $P\left(c|d,f\right)$ equals $\Lambda\left(c\right)/r$.
+  \label{th:Pcdf}
 \end{theorem}
 
 \begin{proof}
-  The uniform average over all targets $f$ of $P\left(c|f,d\right)$ equals
+  The uniform average over all targets $f$ of $P\left(c|f,d\right)$
+  equals to
   \begin{equation}
-    \begin{split}
-      & \frac{\sum_f P\left(c|f,d\right)}{n\times r} \\
-      & = \sum_{y_H,y_F,f} \delta\left[c,L\left(y_H, y_F\right)\right]
-      P\left(y_H|q,d\right) P\left(y_F|q,f\right) P\left(q|d\right) /
-      \left(n\times r\right) \\
-      & =  \sum_{y_H,y_F,q,f} \delta\left[c,L\left(y_H, y_F\right)\right]
-      P\left(y_H|q,d\right) P\left(y_F|q,f\right) P\left(q|d\right) /
-      \left(n\times r\right)
-    \end{split}
+    E_f \left[P\left(c|f,d\right)\right] = \sum_{y_H,y_F,q}
+      \delta\left[c,L\left(y_H, y_F\right)\right]
+      P\left(y_H|q,d\right) E_f \left[P\left(y_F|q,f\right)\right] P\left(q|d\right) \\
   \end{equation}
 
-  The nature of $f$.  $f(y_F, q) = P\left(y_F|q,f\right)$. Therefore
-  $\sum_{y_F} f(y_F, q) =1$ Therefore the set of values of $f$ fall
-  into a a unit simplex of dimension $r$. So all $f$'s are all
-  possible mappings $\mathbf{X} \rightarrow S_r$.
+  \begin{equation}
+    E_f \left[P\left(y_F|q,f\right)\right] = E_f f(q,y_F)
+  \end{equation}
+  Because \gls{$F$} is symmetric, the average is a constant that does
+  not depend on $q$ and $y_F$. Also,
+  $\sum_{y_F} E_f\left[f(y_F, q)\right] = E_f\left[\sum_{y_F} f(y_F,
+    q)\right] = 1$, therefore $E_f\left[f(y_F, q)\right] = 1/r$.
 
-  Volume integral of the coordinate corresponding to $y_F$ over the
-  $S_r$: $E\left[f(y_F, q)\right] = \int_{s_r} s_{r_{y_F}} ds$. Given
-  that $S_r$ is symmetrical, the integral doesn't depend on $y_F$.
-  
-  TODO - formalism
+  Using the homogeneity property of $L$:
+  \begin{equation}
+    E_f P\left(c|f,d\right) = \sum_{y_H, q} \Lambda(c)
+    P\left(y_H|q,d\right)  P\left(q|d\right) / r = \Lambda(c)/r
+  \end{equation}
+\end{proof}
+
+\begin{theorem}
+  For \gls{OTS error}, a \gls{vertical} $P\left(d|f\right)$, and a homogeneous
+  loss $L$, the uniform average over all targets $f$ of
+  $P\left(c|f, m\right) = \Lambda(c)/r$
+  \label{th:Pcfm}
+\end{theorem}
+
+\begin{proof}
+  \begin{equation}
+    P\left(c|f,m\right) = \sum_{d:|d|=m} P\left(c|f,d\right)P\left(d|f\right)
+  \end{equation}
+\end{proof}
+
+From \ref{lm:Pcdf}:
+\begin{equation}
+  P(c|d,f) = \sum_{y_H,y_F,q}\delta\left[c,L\left(y_H, y_F\right)\right] P\left(y_H|q, d\right)
+  P\left(y_F| q, f\right)P\left(q|d\right).
+\end{equation}
+Because we consider OTS error, $P\left(q|d\right)$ will be non-zero
+only for $q \notin d_X$, so $P\left(y_F| q, f\right)$ only depends on
+components of $f(x,y)$ that correspond to $x\notin d_X$.
+
+We also know that $P\left(d|f\right)$ is vertical, so it is
+independent of the values $f(x,y_F)$ for $x \notin d_X$.
+
+Therefore the integral can be split into two parts, over dimensions
+corresponding to $d_X$ and $\mathbf{X} \setminus d_X$:
+\begin{equation}
+  E_f \left[P\left(c|f,m\right)\right] = \frac{\sum_{d:|d|=m}
+    \left[\int df_{x\notin d_X} P\left(c|d,f \right)
+      \int df_{x \in d_X} P\left(d|f\right)\right]}{\int df_{x\notin d_X} df_{x \in d_X} 1}
+\end{equation}
+
+Again using $P\left(c|d, f\right)$ independence from $x\in d_X$ and theorem \ref{th:Pcdf}:
+\begin{equation}
+  E_{f_{x\notin d_X}} \left[P\left(c|d, f\right)\right] = E_f \left[P\left(c|d, f\right)\right] = 
+  \Lambda(c)/r
+\end{equation}
+
+\begin{equation}
+  E_f \left[P\left(c|f,m\right)\right] = \Lambda(c)/r \frac{\sum_{d:|d|=m}
+    \left[\int df_{x \in d_X} P\left(d|f\right)\right]}{\int df_{x \in d_X} 1} =
+  \Lambda(c)/r
+\end{equation}
+
+\begin{theorem}
+  For OTS error, a vertical $P(d|f)$, uniform $P(f)$, and a
+  homogeneous loss $L$, $P(c|d) = \Lambda(c)/r$.
+  \label{Pcd}
+\end{theorem}
+
+\begin{proof}
+  \begin{equation}
+    P(c|d) = \frac{\int df P(c|d,f) P(f|d)}{\int df}
+  \end{equation}
+  Using the Bayes theorem:
+  \begin{equation}
+    P(f) =  P(f|d) P(d) / P(d|f)
+  \end{equation}
+
+  \begin{equation}
+    P(c|d) = \frac{\int df P(c|d,f) P(f) P(d|f) / P(d)}{\int df} = \alpha(d)
+    \int df P(c|d,f) P(d|f),
+  \end{equation}
+  where $\alpha(d)$ is some function.
 \end{proof}
 
 \section{Implications}

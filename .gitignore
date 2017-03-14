@@ -1,3 +1,9 @@
 *.aux
 *.log
+*.glg
+*.glo
+*.gls
+*.out
+*.xdy
+*.glsdefs
 auto
