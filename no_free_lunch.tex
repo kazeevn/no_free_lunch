@@ -46,19 +46,19 @@ a No Free Lunch Theorem for Learning}
 \begin{document}
 \maketitle
 \begin{abstract}
-  The objective of machine learning is generalization -- learning a
+  The objective of supervised learning is generalization -- learning a
   relation and predicting on yet unseen data. In this paper we show
   that this problem can not be solved in a general, for all target
-  relations. If there are no restrictions on the strucutre of the
+  relations. If there are no restrictions on the structure of the
   problem, than for any two algorithms there are ``as many'' targets
   on which each outperforms the other. This hold true even for random
   guessing.
 \end{abstract}
 
 \section{Introduction}
-This is a partial rewrite of: Wolpert, David H. "The lack of a priori
-distinctions between learning algorithms." Neural computation 8.7
-(1996): 1341-1390.
+This is a streamlined and simplified representation of some results
+from \textit{Wolpert, David H. "The lack of a priori distinctions between
+learning algorithms." Neural computation 8.7 (1996): 1341-1390.}
 
 The objective of supervised learning is generalization -- ``learning''
 information about a process from a set of samples and then using it to
@@ -68,13 +68,12 @@ statistical models -- see the famous paper by Breiman \cite{breiman}.
 
 In this paper we recite several results obtained by David H. Wolpert,
 that show the impossibility of a machine learning algorithm, that
-would work across all targets. The paper does in no way argue that all
+would work for all targets. The paper does in no way argue that all
 algorithms are equivalent \textit{in practice}. There are of course
-algorithms that perform better than random over some classes of
-targets (often the likes of what we see in the real life). But as we
-show here, for any such algorithm there are many targets, at which it
-gets confused by the data and preforms worse than \textit{random
-  guessing}.
+algorithms that perform well over some classes of targets (often the
+likes of what we see in the real life). But as we show here, for any
+such algorithm there are many targets, at which it gets confused by
+the data and preforms worse than \textit{random guessing}.
 
 \section{Formalism}
 Begin with two finite sets $\mathbf{X}$ and $\mathbf{Y}$. $\mathbf{X}$
@@ -96,16 +95,19 @@ $c = L(y_H, y_F)$.
 The results in the paper are various averages over $f$. $f$ is a set
 of $r\times n$ real numbers, so we can write a multidimensional
 integral $\int A(f) df$ and average
-$E_f A(f) = \int df A(f) / \int df 1$. We do not evaluate the
-integrals explicitly, but for the clarity sake, it is worth to discuss
-them. $\sum_y f(x,y) = 1$. Therefore, $f$ is a mapping from
-$\mathbf{X}$ to an $r$-dimensional unit simplex. The integration
-volume $F$ is a Cartesian product of unit simplices, which can be
-expressed using a combination of Dirac delta functions and Heaviside
-step functions:
+$E_f A(f) = \int df A(f) / \int df 1$. All integrals over targets $f$
+in this paper are implicitly restricted to the valid
+$\mathbf{X}$-conditioned distributions over $\mathbf{Y}$. We do not
+evaluate the integrals explicitly, but for the clarity sake, it is
+worth to discuss them.
+
+$\sum_y f(x,y) = 1$. Therefore, $f$ is a mapping from $\mathbf{X}$ to
+an $r$-dimensional unit simplex. The integration volume $F$ is a
+Cartesian product of unit simplices, which can be expressed using a
+combination of Dirac delta functions and Heaviside step functions:
 
 \begin{equation}
-  \int A(f) df = \int A(f) df \prod_{i=0}^n\left[\delta\left(\sum_{j=i\times r}^{(i+1)\times r-1}f_j - 1\right) \prod_{j=i\times r}^{(i+1)\times r-1}\theta\left(f_j\right)  \right]
+  \int_F A(f) df = \int A(f) df \prod_{i=0}^n\left[\delta\left(\sum_{j=i\times r}^{(i+1)\times r-1}f_j - 1\right) \prod_{j=i\times r}^{(i+1)\times r-1}\theta\left(f_j\right)  \right].
 \end{equation}
 
 In this paper we consider \textit{homogeneous loss}, meaning that
@@ -133,7 +135,7 @@ vertical independent and identically distributed (IID) likelihood
 
 \section{No Free Lunch}
 The general idea behind the No Free Lunch theorems is calculating the
-uniform average over $f$ of the distribution of classifier performace
+uniform average over $f$ of the distribution of classifier performance
 (loss $c$) conditioned on various variables.
 
 \subsection{Example}
@@ -143,25 +145,25 @@ counter-intuitive idea of No Free Lunch on a simple example.
 Take $\mathbf{X} = \left\{0,1,2,3,4\right\}$,
 $\mathbf{Y} = \left\{0,1\right\}$, a uniform sampling distribution
 $\pi(x)$, zero-one loss $L$. For clarity we will consider only
-determined $f$. Set the number of distinct elements in trainig set
+determined $f$. Set the number of distinct elements in the training set
 $m' = 4$. Let algorithm $A$ always predict the label most popular in
-the training set, algorithm $B$ the least popular. If case the
-nubmbers of labels are equal, the algorithms choose randomly.
+the training set, algorithm $B$ the least popular. If case the numbers
+of labels are equal, the algorithms choose randomly.
 
 We shall show that $E(c|f,m')$ is the same for $A$ and $B$.
 \begin{enumerate}
 \item There is only one $f$ for which for all $\mathbf{X}$ values,
-  $\mathbf{Y}=0$. In this case algorithm $A$ works perfectly, $c=0$,
-  algorithm $B$ always misses, $c=1$.
+  $\mathbf{Y}=0$. In this case algorithm $A$ works perfectly, $c_A=0$,
+  algorithm $B$ always misses, $c_B=1$.
 \item There are 5 $f$s with one $1$. For each such $f$, the
   probability that the training set has all zeros is $0.2$. For these
-  trainig sets $c_A=1$, $c_B=0$. For the other 4 sets, $c_A=0$,
+  training sets, $c_A=1$, $c_B=0$. For the other 4 sets, $c_A=0$,
   $c_B=1$. Therefore, the expected value of
   $E c_A = 0.2\times 1 + 0.8 \times 0 = 0.2$ and
   $E c_B = 0.2\times 0 + 0.8 \times 1 = 0.8$
-\item There are 10 $f$s with two 1s. There is a $0.4$ probability that
-  the training set has one $1$. Therefore, the other $1$ is in the
-  test set, and $c_A = 1$, $c_B = 0$. There is a $0.6$ probability
+\item There are 10 $f$s with two 1s. There is a $0.4$ probability,
+  that the training set has one $1$. Therefore, the other $1$ is in
+  the test set, and $c_A = 1$, $c_B = 0$. There is a $0.6$ probability
   that the train set has two 1s. In that case both algorithms guess
   randomly and $E c_A = E c_B = 0.5$. So for each $f$,
   $E c_A = 0.4\times 1 + 0.6\times 0.5 = 0.7$,
@@ -204,20 +206,20 @@ We shall show that $E(c|f,m')$ is the same for $A$ and $B$.
 \end{proof}
 
 \begin{theorem}
-  For homogenious loss $L$, the uniform average over all $f$ of
+  For homogeneous loss $L$, the uniform average over all $f$ of
   $P\left(c|d,f\right)$ equals $\Lambda\left(c\right)/r$.
   \label{th:Pcdf}
 \end{theorem}
 
 For any fixed training set, for any OTS method $P(q|d)$ of selecting
 the test point, including sampling the same $\pi(x)$, that was used to
-select $d_X$, for any learning algorithm, any homogenious loss $L$,
+select $d_X$, for any learning algorithm, any homogeneous loss $L$,
 the average performance over all possible targets is a constant, that
 only depends on $\left|\mathbf{Y}\right|$ and $L$.
 
 This result ignores the relationship between $d$ and $f$ -- in other
-words, the $\mathbf{Y}$ values for train and test sets are generatied
-from different distributions. Thus it is not particulary interesting
+words, the $\mathbf{Y}$ values for train and test sets are generated
+from different distributions. Thus it is not particularly interesting
 in itself, but will rather serve us a base for further inquiries.
 
 \begin{proof}
@@ -264,7 +266,7 @@ over all possible targets is a constant, that only depends on
 $\left|\mathbf{Y}\right|$ and $L$.
 
 This is a valid No Free Lunch theorem, as advertised in the
-beginning. If an algorithm ``beats'' some other, incuding the random
+beginning. If an algorithm ``beats'' some other, including the random
 guess, on some $f$'s, it will necessary lose on the rest, so that the
 averages would be the same.
 
@@ -322,7 +324,7 @@ terms:
   \begin{equation}
     P(f) =  P(f|d) P(d) / P(d|f),
   \end{equation}
-  and unformity of $P(f)$:
+  and uniformity of $P(f)$:
   \begin{equation}
     E_f\left[P(c|d)\right] = \frac{\int df P(c|d,f) P(f) P(d|f) / P(d)}{\int df} = \alpha(d)
       \frac{\int df P(c|d,f) P(d|f)}{\int df 1},
@@ -347,17 +349,26 @@ terms:
     \int dc \frac{\Lambda(c)}{r}.
   \end{equation}
   From theorem \ref{th:Pcfm} we know that $\frac{\Lambda(c)}{r}$ is,
-  in fact, probability, thus $\int dc \frac{\Lambda(c)}{r} =
+  in fact, a probability, thus $\int dc \frac{\Lambda(c)}{r} =
   1$. Therefore $\frac{\beta(d)}{\int df_{x \in d_X}} = 1$ as
   well. Substituting it back to \ref{eq:Pcd1}, we obtain:
   
   \begin{equation}
     E_f\left[P(c|d)\right] =  \frac{\Lambda(c)}{r}
   \end{equation}
-  
 \end{proof}
 
 \section{Implications}
+For learning theory, the No Free Lunch theorems invalidate any formal
+performance guarantees, that don't make a restriction on the problem
+class.
+
+The NFL theorems also prove that performance on a ``test'' or
+``validation'' set $T$, commonly used in practice, is not an agnostic
+tool to compare algorithms. That is if we are interested in the error
+for $x\notin \{d \cup T\}$, in absence of prior assumptions, the error
+on $T$ is meaningless, no matter how many elements there are in $T$.
+
 No Free Lunch theorems pose a philosophical paradox. The Wolpert's
 paper begins with a quote from David Hume: ``Even after the
 observation of the frequent conjunction of objects, we have no reason
@@ -365,7 +376,7 @@ to draw any inference concerning any object beyond those of which we
 have had experience.'' All our experiences, the training set, belong
 to the past. This includes any ``prior knowledge'' -- that targets
 tend to be smooth, the Occams's razor, etc. The NFL theorems state,
-that even if some knowelage and algorithms allowed you to generalize
+that even if some knowledge and algorithms allowed you to generalize
 well in the training set (the past), there is are no formal guarantees
 about its behavior in the future. So, if we are to subscribe to strict
 empiricism and don't make any assumptions about the world, we must
@@ -374,7 +385,7 @@ claim the ability to predict the future, we must also admit that this
 ability is based on some arbitrary assumptions. And there are
 infinitely many possible assumptions and the choice can not be based
 on anything empirical as otherwise it would fall under the prior
-knowelage.
+knowledge.
 
 %\glsaddall
 %\printglossaries
