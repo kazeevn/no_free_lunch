@@ -36,55 +36,151 @@ a No Free Lunch Theorem for Learning}
   description={$f$ value space in}
 }
 
+\newglossaryentry{$\mathbf{X}$}{
+  name=$\mathbf{X}$,
+  description={The input set. Is finite,} %$|\mathbf{X}| = n \in \mathbb{N}$}
+}
+
+
 \makeglossaries
 \begin{document}
 \maketitle
 \begin{abstract}
-  Machine learning is about genralization. The perormance measured on
-  not yet seen data is how we compare algorithms. In this paper we
-  show that a perfect universal learner is impossible. If there are no
-  restrictions on the strucutre of the problem, then for any two
-  algorithms there are ``as many'' targets on which each outperformes
-  the other.
+  The objective of machine learning is generalization -- learning a
+  relation and predicting on yet unseen data. In this paper we show
+  that this problem can not be solved in a general, for all target
+  relations. If there are no restrictions on the strucutre of the
+  problem, than for any two algorithms there are ``as many'' targets
+  on which each outperforms the other. This hold true even for random
+  guessing.
 \end{abstract}
+
 \section{Introduction}
+This is a partial rewrite of: Wolpert, David H. "The lack of a priori
+distinctions between learning algorithms." Neural computation 8.7
+(1996): 1341-1390.
 
-TODO paper link
+The objective of supervised learning is generalization -- ``learning''
+information about a process from a set of samples and then using it to
+predict the outcome in cases yet unseen. It is widely advertised as an
+assumption-free, ``data-driven'' approach, in contrast to explicit
+statistical models -- see the famous paper by Breiman \cite{breiman}.
 
-We have a nice array of impossibility theorems. Goedel, halting,
-Arrow. NFL is one more. 
-
-We  make practical climes. Empirically ML works) However
-theory-side, a universal learner is impossible.
+This paper recites several results obtained by David H. Wolpert, that
+show impossibility of a machine learning algorithm, that would work
+across all targets. The paper does in no way argue that all algorythms
+are equivalent \textit{in practice}. There are of course algorithms
+that perform better than random over some classes of targets (often
+the likes of what we see in real life). But as we show here, for any
+such algorithm there are many targets, at which it gets confused by
+the data and preforms worse than \textit{random guessing}.
 
 \section{Formalism}
-\printglossaries
+Begin with two finite sets $\mathbf{X}$ and $\mathbf{Y}$. $\mathbf{X}$
+is the input set, $\mathbf{Y}$ is the output set. Define a metric
+(loss function): $L(y_1, y_2) \in \mathbf{R}$,
+$y_1, y_2 \in \mathbf{Y}$. Introduce the target function $f$ -- an
+$\mathbf{X}$-conditioned distribution over $\mathbf{Y}$. Select a
+training set $d$ of $m$ $\mathbf{X}-\mathbf{Y}$ pairs, according to
+some distribution $P(d|f)$. Select a test point $q \notin d_X$ (we are
+interested in the generalization power). Take a classifier, train it
+on $d$, use it to predict on $q$. Let $y_H$ be the prediction. Any
+classifier is completely described by its behavior, $P(y_H|q,d)$. Also
+sample the target distribution $f$ at point $q$, let $y_F$ be the
+result.
 
-Integral
+The results in the paper are various averages over $f$. $f$ is a set
+of $r\times n$ real numbers, so we can write a multidimensional
+integral $\int A(f) df$ and average
+$E_f A(f) = \int df A(f) / \int df 1$. We do not evaluate the
+integrals explicitly, but for clarity sake, it is worth to discuss
+them. $\sum_y f(x,y) = 1$. Therefore, $f$ is a mapping from
+$\mathbf{X}$ to an $r$-dimensional unit simplex. The integration
+volume therefore is a Cartesian product of unit simplices $F$, which
+can be expressed using a combination of Dirac delta functions and
+Heaviside step functions:
+
 \begin{equation}
-  \int A(f) df = \int_{\mathbf{R}^{rn}} A(f) df \prod_{i=0}^n\left[\delta\left(\sum_{j=i\times r}^{(i+1)\times r-1}f_j - 1\right) \prod_{j=i\times r}^{(i+1)\times r-1}\theta\left(f_j\right)  \right]
+  \int A(f) df = \int A(f) df \prod_{i=0}^n\left[\delta\left(\sum_{j=i\times r}^{(i+1)\times r-1}f_j - 1\right) \prod_{j=i\times r}^{(i+1)\times r-1}\theta\left(f_j\right)  \right]
+\end{equation}
+
+We also use term \textit{homogeneous loss}, meaning that
+\begin{equation}
+  \forall c \in \mathbb{R}, \forall y_H \in \mathbf{Y}:
+  \sum_{y_F \in \mathbf{Y}} \delta\left[c, L(y_H, y_F)\right] = \Lambda(c).
+\end{equation}
+Intuitively, such $L$ have no a priori preference for one $\mathbf{Y}$
+value over another. For example, zero-one loss
+($L(a,b) = 1 \text{ if } a\neq b, 0$ otherwise) is homogeneous, and
+quadratic ($L(a,b) = (a - b)^2$; $a, b, \in \mathbb{R}$) is not. A
+weaker version of No Free Lunch Theorem still holds for
+non-homogeneous losses, they are discussed in \cite{Wolpert-yes-lunch}
+
+Likelihood $P(d|f)$ determines how $d$ was generated from $f$. It is
+\textit{vertical} if $P(d|f)$ is independent of the values $f(x, y_F)$
+for $x \notin d_X$. For example, the conventional procedure, where $d$
+is created by repeatedly choosing its $\mathbf{X}$ component by
+sampling some distribution $\pi(x)$, and then choosing the associated
+$d_Y$ value by sampling $f\left(d_x(i), y\right)$, results in a
+vertical independent and identically distributed likelihood
+\begin{equation}
+  P(d|f) = \prod_{i=1}^m \pi(d_x(i)) f(d_X(i), d_Y(i)).
 \end{equation}
 
 \section{No Free Lunch}
+The general idea behind the No Free Lunch theorems is calculating the
+uniform average over $f$ of the distribution of classifier performace
+(loss $c$) on the test element conditioned on various variables.
+
+\subsection{Example}
+Before writing the formal theorems, let us illustrate the
+counter-intuitive idea of No Free Lunch on a simple example.
+
+Take $\mathbf{X} = \left\{0,1,2,3,4\right\}$,
+$\mathbf{Y} = \left\{0,1\right\}$, a uniform sampling distribution
+$\pi(x)$, zero-one loss $L$. For clarity we will consider only
+determined $f$. Set the number of distinct elements in trainig set
+$m' = 4$. Let algorithm $A$ always predict the label most present in
+the training set, algorithm $B$ the least present. If case the nubmber
+of labels are equal, the algorithms choose randomly.
+
+We shall calculate $E(c|f,m)$ for $A$ and $B$.
+\begin{enumerate}
+\item There is only one $f$ for which for all $\mathbf{X}$ values,
+  $\mathbf{Y}=0$. In this case algorithm $A$ works perfectly, $c=0$,
+  algorithm $B$ always misses, $c=1$.
+\item There are 5 $f$s with one $1$. For each such $f$, the
+  probability that the training set has all zeros is $0.2$. For these
+  trainig sets $c_A=1$, $c_B=0$. For the other 4 sets, $c_A=0$,
+  $c_B=1$. Therefore, the expected value of
+  $E c_A = 0.2\times 1 + 0.8 \times 0 = 0.2$ and
+  $E c_B = 0.2\times 0 + 0.8 \times 1 = 0.8$
+\item There are 10 $f$s with two 1s. There is a $0.4$ probability that
+  the training set has one $1$. Therefore, the other $1$ is in the
+  test set, and $c_A = 1$, $c_B = 0$. There is a $0.6$ probability
+  that the train set has two 1s. In that case both algorithms guess
+  randomly and $E c_A = E c_B = 0.5$. So for each $f$,
+  $E c_A = 0.4\times 1 + 0.6\times 0.5 = 0.7$,
+  $E c_B = 0.4\times 0 + 0.6\times 0.5 = 0.3$. Note that $B$
+  outperforms $A$.
+\item The cases with three, four and five 1s are equivalent to the
+  already described.
+\item Averaging over $f$, we have
+  $E_f c_A = \frac{1\times 0 + 5\times 0.2 + 10\times 0.7}{1+5+10} =
+  0.5$,
+  $E_f c_B = \frac{1\times 1 + 5\times 0.8 + 10\times 0.3}{1+5+10} =
+  0.5$
+\end{enumerate}
+
+\subsection{Theorems}
+
 \begin{lemma}
 \begin{equation}
   P(c|d,f) = \sum_{y_H,y_F,q}\delta\left[c,L\left(y_H, y_F\right)\right] P\left(y_H|q, d\right)
   P\left(y_F| q, f\right)P\left(q|d\right)
-  \label{lm:Pcdf}
 \end{equation}
+\label{lm:Pcdf}
 \end{lemma}
-
-\begin{itemize}
-\item $P\left(q|d\right)$ -- conditional probability of test set $q$ given training set $d$
-\item $P\left(y_F| q, f\right)$ -- conditional probability of given
-  target sample $y_F$ for the given the target distribution $f$ and
-  test set $q$
-\item $P\left(y_H|q, d\right)$ -- conditional probability of given
-  predicted sample $y_H$ given the test and training sets. Is a
-  function of the learning algorithm.
-\item $P(c|f,d)$ -- conditional probability of given cost $c$ given
-  target $f$ and training set $d$.
-\end{itemize}
 
 \begin{proof}
 \begin{equation}
@@ -110,11 +206,22 @@ CONSIDER example with random guessing.
   \label{th:Pcdf}
 \end{theorem}
 
+For any fixed training set, for any OTS method $P(q|d)$ of selecting
+the test point, including sampling the same $\pi(x)$, that was used to
+select $d_X$, for any learning algorithm, any homogenious loss $L$,
+the average performance over all possible targets is a constant, that
+only depends on $\left|\mathbf{Y}\right|$ and $L$.
+
+This result ignores the relationship between $d$ and $f$ -- in other
+words, the $\mathbf{Y}$ values for train and test sets are generatied
+from different distributions. Thus it is not particulary interesting
+in itself, but will rather serve us a base for further inquiries.
+
 \begin{proof}
-  The uniform average over all targets $f$ of $P\left(c|f,d\right)$
-  equals to
+  Using lemma \ref{lm:Pcdf}, the uniform average over all targets $f$
+  of $P\left(c|d,f\right)$ can be written as
   \begin{equation}
-    E_f \left[P\left(c|f,d\right)\right] = \sum_{y_H,y_F,q}
+    E_f \left[P\left(c|d,f\right)\right] = \sum_{y_H,y_F,q}
       \delta\left[c,L\left(y_H, y_F\right)\right]
       P\left(y_H|q,d\right) E_f \left[P\left(y_F|q,f\right)\right] P\left(q|d\right) \\
   \end{equation}
@@ -124,26 +231,43 @@ CONSIDER example with random guessing.
   \end{equation}
   Because \gls{$F$} is symmetric, the average is a constant that does
   not depend on $q$ and $y_F$. Also,
-  $\sum_{y_F} E_f\left[f(y_F, q)\right] = E_f\left[\sum_{y_F} f(y_F,
-    q)\right] = 1$, therefore $E_f\left[f(y_F, q)\right] = 1/r$.
-
+  \begin{equation}
+    \sum_{y_F} E_f\left[f(q, y_F)\right] = E_f\left[\sum_{y_F} f(q, y_F)\right] = 1,  
+  \end{equation}
+  therefore
+  \begin{equation}
+    E_f\left[f(q, y_F)\right] = 1/r.
+  \end{equation}
   Using the homogeneity property of $L$:
   \begin{equation}
-    E_f P\left(c|f,d\right) = \sum_{y_H, q} \Lambda(c)
+    E_f P\left(c|d,f\right) = \sum_{y_H, q} \Lambda(c)
     P\left(y_H|q,d\right)  P\left(q|d\right) / r = \Lambda(c)/r
   \end{equation}
 \end{proof}
 
 \begin{theorem}
-  For \gls{OTS error}, a \gls{vertical} $P\left(d|f\right)$, and a homogeneous
-  loss $L$, the uniform average over all targets $f$ of
+  For \gls{OTS error}, a \gls{vertical} $P\left(d|f\right)$, and a
+  homogeneous loss $L$, the uniform average over all targets $f$ of
   $P\left(c|f, m\right) = \Lambda(c)/r$
   \label{th:Pcfm}
 \end{theorem}
 
+For any fixed training set size $m$, any \gls{vertical} method of
+training set generation, including the conventional IID-generated, for
+any OTS method $P(q|d)$ of selecting the test point, including
+sampling the same $\pi(x)$, that was used to select $d_X$, for any
+learning algorithm, any homogeneous loss $L$, the average performance
+over all possible targets is a constant, that only depends on
+$\left|\mathbf{Y}\right|$ and $L$.
+
+This is a valid No Free Lunch theorem, as advertised in the
+beginning. If an algorithm ``beats'' some other, incuding the random
+guess, on some $f$'s, it will necessary lose on the rest, so that the
+averages would be the same.
+
 \begin{proof}
   \begin{equation}
-    P\left(c|f,m\right) = \sum_{d:|d|=m} P\left(c|f,d\right)P\left(d|f\right)
+    P\left(c|f,m\right) = \sum_{d:|d|=m} P\left(c|d,f\right)P\left(d|f\right)
   \end{equation}
 \end{proof}
 
@@ -179,6 +303,8 @@ Again using $P\left(c|d, f\right)$ independence from $x\in d_X$ and theorem \ref
   \Lambda(c)/r
 \end{equation}
 
+No Free Lunch theorem can also be formulated in Bayesian analysis
+terms:
 \begin{theorem}
   For OTS error, a vertical $P(d|f)$, uniform $P(f)$, and a
   homogeneous loss $L$, $P(c|d) = \Lambda(c)/r$.
@@ -187,21 +313,75 @@ Again using $P\left(c|d, f\right)$ independence from $x\in d_X$ and theorem \ref
 
 \begin{proof}
   \begin{equation}
-    P(c|d) = \frac{\int df P(c|d,f) P(f|d)}{\int df}
+    E_f\left[P(c|d)\right] = \frac{\int df P(c|d,f) P(f|d)}{\int df}
   \end{equation}
-  Using the Bayes theorem:
+  Using the Bayes theorem,
   \begin{equation}
-    P(f) =  P(f|d) P(d) / P(d|f)
+    P(f) =  P(f|d) P(d) / P(d|f),
   \end{equation}
-
+  and unformity of $P(f)$:
   \begin{equation}
-    P(c|d) = \frac{\int df P(c|d,f) P(f) P(d|f) / P(d)}{\int df} = \alpha(d)
-    \int df P(c|d,f) P(d|f),
+    E_f\left[P(c|d)\right] = \frac{\int df P(c|d,f) P(f) P(d|f) / P(d)}{\int df} = \alpha(d)
+      \frac{\int df P(c|d,f) P(d|f)}{\int df 1},
   \end{equation}
-  where $\alpha(d)$ is some function.
+  where $\alpha(d)$ is some function. Like in theorem \ref{th:Pcfm},
+  the integral can be split into parts that depend on
+  $f\left(x\in d_X\right)$ and $f\left(x\notin d_X\right)$:
+  \begin{equation}
+    E_f\left[P(c|d)\right] = \alpha(d) \frac{\int df_{x\notin d_X} P\left(c|d,f \right)
+      \int df_{x \in d_X} P\left(d|f\right)}{\int df_{x\notin d_X} df_{x \in d_X} 1}.
+  \end{equation}
+  The integral $\int df_{x \in d_X} P\left(d|f\right)$ can again be
+  absorbed into the $d$-dependent constant:
+  \begin{equation}
+    E_f\left[P(c|d)\right] = \beta(d) \frac{\int df_{x\notin d_X} P\left(c|d,f \right)
+    }{\int df_{x\notin d_X} df_{x \in d_X} 1} = \frac{\Lambda(c)}{r} \frac{\beta(d)}{\int df_{x \in d_X}}.
+    \label{eq:Pcd1}
+  \end{equation}
+  To find out the value of the constant, we integrate both sides by $c$:
+  \begin{equation}
+    \int dc E_f\left[P(c|d)\right] = 1 = \frac{\beta(d)}{\int df_{x \in d_X}}
+    \int dc \frac{\Lambda(c)}{r}.
+  \end{equation}
+  From theorem \ref{th:Pcfm} we know that $\frac{\Lambda(c)}{r}$ is,
+  in fact, probability, thus $\int dc \frac{\Lambda(c)}{r} =
+  1$. Therefore $\frac{\beta(d)}{\int df_{x \in d_X}} = 1$ as
+  well. Substituting it back to \ref{eq:Pcd1}, we obtain:
+  
+  \begin{equation}
+    E_f\left[P(c|d)\right] =  \frac{\Lambda(c)}{r}
+  \end{equation}
+  
 \end{proof}
 
 \section{Implications}
-[mine?] Empirism philosophy?
+No Free Lunch theorems pose a philosophical paradox. The Wolpert's
+paper begins with a quote from David Hume: ``Even after the
+observation of the frequent conjunction of objects, we have no reason
+to draw any inference concerning any object beyond those of which we
+have had experience.'' All our experiences, the training set, belong
+to the past. This includes any ``prior knowledge'' -- that targets
+tend to be smooth, the Occams's razor, etc. The NFL theorems state,
+that even if some knowelage and algorithms allowed you to generalize
+well in the past, there is are formal guarantees about its behavior in
+the future. So, if we are to subscribe to strict empiricism and don't
+make any assumptions about the world, we must accept that the world is
+unknowable. On the other hand, if we are to claim the ability to
+predict the future, we must also admit that this ability is based on
+some arbitrary assumptions. And there are infinitely many possible
+assumptions and the choice can not be based on anything empirical as
+otherwise it would fall under the prior knowelage.
+
+\glsaddall
+\printglossaries
+
+\begin{thebibliography}{99}
+\bibitem{breiman}{Breiman, Leo. "Statistical modeling: The two
+    cultures (with comments and a rejoinder by the author)."
+    Statistical science 16.3 (2001): 199-231.}
+\bibitem{Wolpert-yes-lunch} Wolpert, David H. "The existence of a
+  priori distinctions between learning algorithms." Neural Computation
+  8.7 (1996): 1391-1420.
+\end{thebibliography}
 
 \end{document}
