@@ -12,34 +12,34 @@
 a No Free Lunch Theorem for Learning}
 \author{Nikita Kazeev, based on David H. Wolpert}
 
-\newglossaryentry{OTS error}{
-  name=OTS error,
-  description={
-    \begin{equation}
-      P\left(q|d\right) = \frac{\delta(q \notin d_X)\pi(q)}{
-        \sum_q\left[\delta(q \notin d_X) \pi(q)\right]},
-    \end{equation}
-    where $\delta(z) \equiv 1$ if $z$ is true and $0$ otherwise.
-  }
-}
+% \newglossaryentry{OTS error}{
+%   name=OTS error,
+%   description={
+%     \begin{equation}
+%       P\left(q|d\right) = \frac{\delta(q \notin d_X)\pi(q)}{
+%         \sum_q\left[\delta(q \notin d_X) \pi(q)\right]},
+%     \end{equation}
+%     where $\delta(z) \equiv 1$ if $z$ is true and $0$ otherwise.
+%   }
+% }
 
-\newglossaryentry{vertical}{
-  name=vertical,
-  description={
-    $P\left(d|f\right)$: iff $P\left(d|f\right)$ is independent
-    of the values $f(x,y_F)$ for $x \notin d_X$.
-  }
-}
+% \newglossaryentry{vertical}{
+%   name=vertical,
+%   description={
+%     $P\left(d|f\right)$: iff $P\left(d|f\right)$ is independent
+%     of the values $f(x,y_F)$ for $x \notin d_X$.
+%   }
+% }
 
-\newglossaryentry{$F$}{
-  name=$F$,
-  description={$f$ value space in}
-}
+% \newglossaryentry{$F$}{
+%   name=$F$,
+%   description={$f$ value space in}
+% }
 
-\newglossaryentry{$\mathbf{X}$}{
-  name=$\mathbf{X}$,
-  description={The input set. Is finite,} %$|\mathbf{X}| = n \in \mathbb{N}$}
-}
+% \newglossaryentry{X}{
+%   name=X,
+%   description=dfdf%{The input set. Is finite,} %$|\mathbf{X}| = n \in \mathbb{N}$}
+% }
 
 
 \makeglossaries
@@ -66,45 +66,49 @@ predict the outcome in cases yet unseen. It is widely advertised as an
 assumption-free, ``data-driven'' approach, in contrast to explicit
 statistical models -- see the famous paper by Breiman \cite{breiman}.
 
-This paper recites several results obtained by David H. Wolpert, that
-show impossibility of a machine learning algorithm, that would work
-across all targets. The paper does in no way argue that all algorythms
-are equivalent \textit{in practice}. There are of course algorithms
-that perform better than random over some classes of targets (often
-the likes of what we see in real life). But as we show here, for any
-such algorithm there are many targets, at which it gets confused by
-the data and preforms worse than \textit{random guessing}.
+In this paper we recite several results obtained by David H. Wolpert,
+that show the impossibility of a machine learning algorithm, that
+would work across all targets. The paper does in no way argue that all
+algorithms are equivalent \textit{in practice}. There are of course
+algorithms that perform better than random over some classes of
+targets (often the likes of what we see in the real life). But as we
+show here, for any such algorithm there are many targets, at which it
+gets confused by the data and preforms worse than \textit{random
+  guessing}.
 
 \section{Formalism}
 Begin with two finite sets $\mathbf{X}$ and $\mathbf{Y}$. $\mathbf{X}$
 is the input set, $\mathbf{Y}$ is the output set. Define a metric
-(loss function): $L(y_1, y_2) \in \mathbf{R}$,
-$y_1, y_2 \in \mathbf{Y}$. Introduce the target function $f$ -- an
+(loss function): $L(y_1, y_2) \in \mathbb{R}$,
+$y_1, y_2 \in \mathbf{Y}$. Introduce the target function
+$f(x, y), x \in \mathbf{X}, y \in \mathbf{Y}$ -- an
 $\mathbf{X}$-conditioned distribution over $\mathbf{Y}$. Select a
 training set $d$ of $m$ $\mathbf{X}-\mathbf{Y}$ pairs, according to
-some distribution $P(d|f)$. Select a test point $q \notin d_X$ (we are
-interested in the generalization power). Take a classifier, train it
-on $d$, use it to predict on $q$. Let $y_H$ be the prediction. Any
-classifier is completely described by its behavior, $P(y_H|q,d)$. Also
-sample the target distribution $f$ at point $q$, let $y_F$ be the
-result.
+some distribution $P(d|f)$. Select a test point
+$q\in \mathbf{X}, q \notin d_X$ -- we are interested in the
+generalization power. Such selection is called off the sample
+(OTS). Take a classifier, train it on $d$, use it to predict on
+$q$. Let $y_H$ be the prediction. Any classifier is completely
+described by its behavior, $P(y_H|q,d)$. Also sample the target
+distribution $f$ at point $q$, let $y_F$ be the result. Define loss
+$c = L(y_H, y_F)$.
 
 The results in the paper are various averages over $f$. $f$ is a set
 of $r\times n$ real numbers, so we can write a multidimensional
 integral $\int A(f) df$ and average
 $E_f A(f) = \int df A(f) / \int df 1$. We do not evaluate the
-integrals explicitly, but for clarity sake, it is worth to discuss
+integrals explicitly, but for the clarity sake, it is worth to discuss
 them. $\sum_y f(x,y) = 1$. Therefore, $f$ is a mapping from
 $\mathbf{X}$ to an $r$-dimensional unit simplex. The integration
-volume therefore is a Cartesian product of unit simplices $F$, which
-can be expressed using a combination of Dirac delta functions and
-Heaviside step functions:
+volume $F$ is a Cartesian product of unit simplices, which can be
+expressed using a combination of Dirac delta functions and Heaviside
+step functions:
 
 \begin{equation}
   \int A(f) df = \int A(f) df \prod_{i=0}^n\left[\delta\left(\sum_{j=i\times r}^{(i+1)\times r-1}f_j - 1\right) \prod_{j=i\times r}^{(i+1)\times r-1}\theta\left(f_j\right)  \right]
 \end{equation}
 
-We also use term \textit{homogeneous loss}, meaning that
+In this paper we consider \textit{homogeneous loss}, meaning that
 \begin{equation}
   \forall c \in \mathbb{R}, \forall y_H \in \mathbf{Y}:
   \sum_{y_F \in \mathbf{Y}} \delta\left[c, L(y_H, y_F)\right] = \Lambda(c).
@@ -122,7 +126,7 @@ for $x \notin d_X$. For example, the conventional procedure, where $d$
 is created by repeatedly choosing its $\mathbf{X}$ component by
 sampling some distribution $\pi(x)$, and then choosing the associated
 $d_Y$ value by sampling $f\left(d_x(i), y\right)$, results in a
-vertical independent and identically distributed likelihood
+vertical independent and identically distributed (IID) likelihood
 \begin{equation}
   P(d|f) = \prod_{i=1}^m \pi(d_x(i)) f(d_X(i), d_Y(i)).
 \end{equation}
@@ -130,7 +134,7 @@ vertical independent and identically distributed likelihood
 \section{No Free Lunch}
 The general idea behind the No Free Lunch theorems is calculating the
 uniform average over $f$ of the distribution of classifier performace
-(loss $c$) on the test element conditioned on various variables.
+(loss $c$) conditioned on various variables.
 
 \subsection{Example}
 Before writing the formal theorems, let us illustrate the
@@ -140,11 +144,11 @@ Take $\mathbf{X} = \left\{0,1,2,3,4\right\}$,
 $\mathbf{Y} = \left\{0,1\right\}$, a uniform sampling distribution
 $\pi(x)$, zero-one loss $L$. For clarity we will consider only
 determined $f$. Set the number of distinct elements in trainig set
-$m' = 4$. Let algorithm $A$ always predict the label most present in
-the training set, algorithm $B$ the least present. If case the nubmber
-of labels are equal, the algorithms choose randomly.
+$m' = 4$. Let algorithm $A$ always predict the label most popular in
+the training set, algorithm $B$ the least popular. If case the
+nubmbers of labels are equal, the algorithms choose randomly.
 
-We shall calculate $E(c|f,m)$ for $A$ and $B$.
+We shall show that $E(c|f,m')$ is the same for $A$ and $B$.
 \begin{enumerate}
 \item There is only one $f$ for which for all $\mathbf{X}$ values,
   $\mathbf{Y}=0$. In this case algorithm $A$ works perfectly, $c=0$,
@@ -198,7 +202,6 @@ We shall calculate $E(c|f,m)$ for $A$ and $B$.
 \end{split}
 \end{equation}
 \end{proof}
-CONSIDER example with random guessing.
 
 \begin{theorem}
   For homogenious loss $L$, the uniform average over all $f$ of
@@ -229,7 +232,7 @@ in itself, but will rather serve us a base for further inquiries.
   \begin{equation}
     E_f \left[P\left(y_F|q,f\right)\right] = E_f f(q,y_F)
   \end{equation}
-  Because \gls{$F$} is symmetric, the average is a constant that does
+  Because $F$ is symmetric, the average is a constant that does
   not depend on $q$ and $y_F$. Also,
   \begin{equation}
     \sum_{y_F} E_f\left[f(q, y_F)\right] = E_f\left[\sum_{y_F} f(q, y_F)\right] = 1,  
@@ -246,13 +249,13 @@ in itself, but will rather serve us a base for further inquiries.
 \end{proof}
 
 \begin{theorem}
-  For \gls{OTS error}, a \gls{vertical} $P\left(d|f\right)$, and a
-  homogeneous loss $L$, the uniform average over all targets $f$ of
+  For OTS error, a vertical $P\left(d|f\right)$, and a homogeneous
+  loss $L$, the uniform average over all targets $f$ of
   $P\left(c|f, m\right) = \Lambda(c)/r$
   \label{th:Pcfm}
 \end{theorem}
 
-For any fixed training set size $m$, any \gls{vertical} method of
+For any fixed training set size $m$, any vertical method of
 training set generation, including the conventional IID-generated, for
 any OTS method $P(q|d)$ of selecting the test point, including
 sampling the same $\pi(x)$, that was used to select $d_X$, for any
@@ -363,17 +366,18 @@ have had experience.'' All our experiences, the training set, belong
 to the past. This includes any ``prior knowledge'' -- that targets
 tend to be smooth, the Occams's razor, etc. The NFL theorems state,
 that even if some knowelage and algorithms allowed you to generalize
-well in the past, there is are formal guarantees about its behavior in
-the future. So, if we are to subscribe to strict empiricism and don't
-make any assumptions about the world, we must accept that the world is
-unknowable. On the other hand, if we are to claim the ability to
-predict the future, we must also admit that this ability is based on
-some arbitrary assumptions. And there are infinitely many possible
-assumptions and the choice can not be based on anything empirical as
-otherwise it would fall under the prior knowelage.
+well in the training set (the past), there is are no formal guarantees
+about its behavior in the future. So, if we are to subscribe to strict
+empiricism and don't make any assumptions about the world, we must
+accept that the world is unknowable. On the other hand, if we are to
+claim the ability to predict the future, we must also admit that this
+ability is based on some arbitrary assumptions. And there are
+infinitely many possible assumptions and the choice can not be based
+on anything empirical as otherwise it would fall under the prior
+knowelage.
 
-\glsaddall
-\printglossaries
+%\glsaddall
+%\printglossaries
 
 \begin{thebibliography}{99}
 \bibitem{breiman}{Breiman, Leo. "Statistical modeling: The two
