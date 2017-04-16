@@ -62,20 +62,20 @@ This is a streamlined and simplified representation of some results
 from \textit{Wolpert, David H. "The lack of a priori distinctions between
 learning algorithms." Neural computation 8.7 (1996): 1341-1390.}
 
-The objective of supervised learning is generalization -- ``learning''
+The objective of supervised learning is generalization --- ``learning''
 information about a process from a set of samples and then using it to
 predict the outcome for examples yet unseen. It is widely advertised as an
 assumption-free, ``data-driven'' approach, in contrast to explicit
-statistical models -- see the famous paper by Breiman \cite{breiman}.
+statistical models --- see the famous paper by Breiman \cite{breiman}.
 
 In this paper we recite several results obtained by David H. Wolpert,
-that show the impossibility of a machine learning algorithm, that
+which show the impossibility of a machine learning algorithm, that
 would work for all targets. The paper does in no way argue that all
 algorithms are equivalent \textit{in practice}. There are of course
-algorithms that perform well over some classes of targets (often the
-likes of what we see in the real life). But as we show here, for any
-such algorithm there are many targets, at which it gets confused by
-the data and preforms worse than \textit{random guessing}.
+algorithms that perform well over the targets we see in the real
+life. But, as we show here, for any such algorithm there are many
+targets at which it gets confused by the data and preforms worse than
+\textit{random guessing}.
 
 \section{Formalism}
 Begin with two finite sets $\mathbf{X}$ and $\mathbf{Y}$. $\mathbf{X}$
@@ -85,33 +85,30 @@ $y_1, y_2 \in \mathbf{Y}$. Introduce the target function
 $f(x, y), x \in \mathbf{X}, y \in \mathbf{Y}$ -- an
 $\mathbf{X}$-conditioned distribution over $\mathbf{Y}$. Select a
 training set $d$ of $m$ $\mathbf{X}-\mathbf{Y}$ pairs, according to
-some distribution $P(d|f)$. Select a test point
+some distribution $P(d|f)$. Let $d_X$ be its $\mathbf{X}$ component
+and $d_Y$ be the $\mathbf{Y}$ component. Select a test point
 $q\in \mathbf{X}, q \notin d_X$ -- we are interested in the
-generalization power. Such selection is called off the sample
+generalization power. Such selection is called off-training set
 (OTS). Take a classifier, train it on $d$, use it to predict on
 $q$. Let $y_H$ be the prediction. Any classifier is completely
 described by its behavior, $P(y_H|q,d)$. Also sample the target
 distribution $f$ at point $q$, let $y_F$ be the result. Define loss
 $c = L(y_H, y_F)$.
 
-The results in the paper are various averages over $f$. $f$ is a set
-of $|\mathbf{X}|\times |\mathbf{Y}|$ real numbers, so we can write a multidimensional
-integral $\int A(f) df$ and average
-$E_f A(f) = \int df A(f) / \int df 1$. All integrals over targets $f$
-in this paper are implicitly restricted to the valid
+In this paper we determine several averages of conditinal
+probabilities for loss values over all valid $f$. $f$ is uniquely
+specified by an $|\mathbf{X}|\times |\mathbf{Y}|$ matrix of real
+numbers, so we can write a multidimensional integral $\int A(f) df$
+and average $E_f A(f) = \int A(f) df / \int 1 df$. All integrals over
+targets $f$ in this paper are implicitly restricted to the valid
 $\mathbf{X}$-conditioned distributions over $\mathbf{Y}$. We do not
-evaluate the integrals explicitly, but for the clarity sake, it is
+evaluate the integrals explicitly, but for the sake of clarity, it is
 worth to discuss them.
 
 $\sum_y f(x,y) = 1$. Therefore, $f$ is a mapping from $\mathbf{X}$ to
 an $|\mathbf{Y}|$-dimensional unit simplex. The integration volume $F$ is a
 Cartesian product of unit simplices, which can be expressed using a
-combination of Dirac delta functions and Heaviside step functions:
-
-\begin{equation}
-  \int_F A(f) df = \int A(f) df \prod_{i=0}^{|\mathbf{X}|}\left[\delta\left(\sum_{j=i\times |\mathbf{Y}|}^{(i+1)\times |\mathbf{Y}|-1}f_j - 1\right) \prod_{j=i\times |\mathbf{Y}|}^{(i+1)\times |\mathbf{Y}|-1}
-    \theta\left(f_j\right)  \right].
-\end{equation}
+combination of Dirac delta functions and Heaviside step functions.
 
 In this paper we consider \textit{homogeneous loss}, meaning that
 \begin{equation}
@@ -119,26 +116,30 @@ In this paper we consider \textit{homogeneous loss}, meaning that
   \forall c \in \mathbb{R}, \forall y_H \in \mathbf{Y}:
   \sum_{y_F \in \mathbf{Y}} \delta\left[c, L(y_H, y_F)\right] = \Lambda(c),
 \end{equation}
-where $\delta$ is the Kronecker delta function.
-Intuitively, such $L$ have no a priori preference for one $\mathbf{Y}$
-value over another. For example, zero-one loss
+where $\delta$ is the Kronecker delta function.  Intuitively, such $L$
+have no a priori preference for one $\mathbf{Y}$ value over
+another. For example, zero-one loss
 ($L(a,b) = 1 \text{ if } a\neq b, 0$ otherwise) is homogeneous, and
 quadratic ($L(a,b) = (a - b)^2$; $a, b, \in \mathbb{R}$) is not. A
 weaker version of No Free Lunch Theorem still holds for
-non-homogeneous losses, they are discussed in \cite{Wolpert-yes-lunch}
+non-homogeneous loss, it is discussed in \cite{Wolpert-yes-lunch}
 
 Likelihood $P(d|f)$ determines how $d$ was generated from $f$. It is
 \textit{vertical} if $P(d|f)$ is independent of the values $f(x, y_F)$
-for $x \notin d_X$. For example, the conventional procedure, where $d$
-is created by repeatedly choosing its $\mathbf{X}$ component by
-sampling some distribution $\pi(x)$, and then choosing the associated
-$d_Y$ value by sampling $f\left(d_x(i), y\right)$, results in a
-vertical independent and identically distributed (IID) likelihood
+for $x \notin d_X$. We do not require that the $\mathbf{Y}$ components
+for the test and train sets are generated from the same distribution.
+Verticality is needed to prevent leakage of the test set labels into
+the train set. For example, the conventional procedure, where $d$ is
+created by repeatedly and independently choosing its $\mathbf{X}$
+component $d_X$ by sampling some distribution $\pi(x)$, and then
+choosing the associated $d_Y$ value by sampling
+$f\left(d_x(i), y\right)$, results in a vertical independent and
+identically distributed (IID) likelihood
 \begin{equation}
   P(d|f) = \prod_{i=1}^m \pi(d_X(i)) f(d_X(i), d_Y(i)).
 \end{equation}
 
-\section{No Free Lunch}
+\section{No Free Lunch Theorem}
 The general idea behind the No Free Lunch theorems is calculating the
 uniform average over $f$ of the distribution of classifier performance
 (loss $c$) conditioned on various variables.
@@ -217,25 +218,25 @@ that $E_f(c|f,m')$ is the same for $A$ and $B$.
 \end{equation}
 \end{proof}
 
-\begin{theorem}
+\begin{lemma}
   For homogeneous loss $L$, the uniform average over all $f$ of
   $P\left(c|d,f\right)$ equals $\Lambda\left(c\right)/r$.
   \label{th:Pcdf}
-\end{theorem}
+\end{lemma}
 
-For any fixed training set, for any OTS method $P(q|d)$ of selecting
-the test point, including sampling the same $\pi(x)$, that was used to
-select $d_X$, for any learning algorithm, any homogeneous loss $L$,
-the average performance over all possible targets is a constant, that
-only depends on $\left|\mathbf{Y}\right|$ and $L$.
+For any training set, any $\left|\mathbf{Y}\right|$, any homogeneous
+loss $L$, any OTS method $P(q|d)$ of selecting the test point,
+including sampling the same $\pi(x)$, that was used to select $d_X$,
+for any learning algorithm, the average performance over all possible
+targets is a constant.
 
-This result ignores the relationship between $d$ and $f$ -- in other
+This result ignores the relationship between $d$ and $f$. In other
 words, the $\mathbf{Y}$ values for train and test sets are generated
 from different distributions. Thus it is not particularly interesting
 in itself, but will rather serve us a base for further inquiries.
 
 \begin{proof}
-  Using lemma \ref{lm:Pcdf}, the uniform average over all targets $f$
+  Using Lemma \ref{lm:Pcdf}, the uniform average over all targets $f$
   of $P\left(c|d,f\right)$ can be written as
   \begin{equation}
     E_f \left[P\left(c|d,f\right)\right] = \sum_{y_H,y_F,q}
@@ -246,8 +247,9 @@ in itself, but will rather serve us a base for further inquiries.
   \begin{equation}
     E_f \left[P\left(y_F|q,f\right)\right] = E_f f(q,y_F)
   \end{equation}
-  Because $F$ is symmetric, the average is a constant that does
-  not depend on $q$ and $y_F$. Also,
+  The integration is over all possible values of $f$. The space of all
+  possible values is the same for all components, thus the average is
+  a constant that does not depend on $q$ and $y_F$. Also,
   \begin{equation}
     \sum_{y_F} E_f\left[f(q, y_F)\right] = E_f\left[\sum_{y_F} f(q, y_F)\right] = 1,  
   \end{equation}
@@ -263,74 +265,73 @@ in itself, but will rather serve us a base for further inquiries.
 \end{proof}
 
 \begin{theorem}
-  For OTS error, a vertical $P\left(d|f\right)$, and a homogeneous
-  loss $L$, the uniform average over all targets $f$ of
+  For vertical $P\left(d|f\right)$, and a homogeneous loss $L$, the
+  uniform average over all targets $f$ of
   $P\left(c|f, m\right) = \Lambda(c)/r$
   \label{th:Pcfm}
 \end{theorem}
 
-For any fixed training set size $m$, any vertical method of
-training set generation, including the conventional IID-generated, for
-any OTS method $P(q|d)$ of selecting the test point, including
-sampling the same $\pi(x)$, that was used to select $d_X$, for any
-learning algorithm, any homogeneous loss $L$, the average performance
-over all possible targets is a constant, that only depends on
-$\left|\mathbf{Y}\right|$ and $L$.
+For any $\left|\mathbf{Y}\right|$, any homogeneous loss $L$, any fixed
+training set size $m$, any vertical method of training set generation,
+including the conventional IID-generated, for any OTS method $P(q|d)$
+of selecting the test point, including sampling the same $\pi(x)$,
+that was used to select $d_X$, for any learning algorithm, the average
+performance over all possible targets is a constant.
 
-This is a valid No Free Lunch theorem, as advertised in the
-beginning. If an algorithm ``beats'' some other, including the random
-guess, on some $f$'s, it will necessary lose on the rest, so that the
-averages would be the same.
+This is the result advertised in the beginning. If an algorithm
+``beats'' some other, including the random guess, on some $f$'s, it
+will necessary lose on the rest, so that the average losses will be
+the same.
 
 \begin{proof}
   \begin{equation}
     P\left(c|f,m\right) = \sum_{d:|d|=m} P\left(c|d,f\right)P\left(d|f\right)
   \end{equation}
 
-From \ref{lm:Pcdf}:
-\begin{equation}
-  P(c|d,f) = \sum_{y_H,y_F,q}\delta\left[c,L\left(y_H, y_F\right)\right] P\left(y_H|q, d\right)
-  P\left(y_F| q, f\right)P\left(q|d\right).
-\end{equation}
-Because we consider OTS error, $P\left(q|d\right)$ will be non-zero
-only for $q \notin d_X$, so $P\left(y_F| q, f\right)$ only depends on
-components of $f(x,y)$ that correspond to $x\notin d_X$.
-
-We also know that $P\left(d|f\right)$ is vertical, so it is
-independent of the values $f(x,y_F)$ for $x \notin d_X$.
-
-Therefore the integral can be split into two parts, over dimensions
-corresponding to $d_X$ and $\mathbf{X} \setminus d_X$:
-\begin{equation}
-  E_f \left[P\left(c|f,m\right)\right] = \frac{\sum_{d:|d|=m}
-    \left[\int df_{x\notin d_X} P\left(c|d,f \right)
-      \int df_{x \in d_X} P\left(d|f\right)\right]}{\int df_{x\notin d_X} df_{x \in d_X} 1}
-\end{equation}
-
-Again using $P\left(c|d, f\right)$ independence from $x\in d_X$ and theorem \ref{th:Pcdf}:
-\begin{equation}
-  E_{f_{x\notin d_X}} \left[P\left(c|d, f\right)\right] = E_f \left[P\left(c|d, f\right)\right] = 
-  \Lambda(c)/r
-\end{equation}
-
-\begin{equation}
-  E_f \left[P\left(c|f,m\right)\right] = \Lambda(c)/r \frac{\sum_{d:|d|=m}
-    \left[\int df_{x \in d_X} P\left(d|f\right)\right]}{\int df_{x \in d_X} 1} =
-  \Lambda(c)/r
-\end{equation}
+  From Lemma \ref{lm:Pcdf}:
+  \begin{equation}
+    P(c|d,f) = \sum_{y_H,y_F,q}\delta\left[c,L\left(y_H, y_F\right)\right] P\left(y_H|q, d\right)
+    P\left(y_F| q, f\right)P\left(q|d\right).
+  \end{equation}
+  Because we consider OTS error, $P\left(q|d\right)$ will be non-zero
+  only for $q \notin d_X$, so $P\left(y_F| q, f\right)$ only depends on
+  components of $f(x,y)$ that correspond to $x\notin d_X$.
+  
+  We also know that $P\left(d|f\right)$ is vertical, so it is
+  independent of the values $f(x,y_F)$ for $x \notin d_X$.
+  
+  Therefore the integral can be split into two parts, over dimensions
+  corresponding to $d_X$ and $\mathbf{X} \setminus d_X$:
+  \begin{equation}
+    E_f \left[P\left(c|f,m\right)\right] = \frac{\sum_{d:|d|=m}
+      \left[\int P\left(c|d,f \right) df_{x\notin d_X}
+        \int P\left(d|f\right) df_{x \in d_X} \right]}{\int 1 df_{x\notin d_X} df_{x \in d_X}}
+  \end{equation}
+  
+  Again using $P\left(c|d, f\right)$ independence from $x\in d_X$ and Lemma \ref{th:Pcdf}:
+  \begin{equation}
+    E_{f_{x\notin d_X}} \left[P\left(c|d, f\right)\right] = E_f \left[P\left(c|d, f\right)\right] = 
+    \Lambda(c)/r
+  \end{equation}
+  
+  \begin{equation}
+    E_f \left[P\left(c|f,m\right)\right] = \Lambda(c)/r \frac{\sum_{d:|d|=m}
+      \left[\int  P\left(d|f\right) df_{x \in d_X} \right]}{\int 1 df_{x \in d_X}} =
+    \Lambda(c)/r
+  \end{equation}
 \end{proof}
 
 No Free Lunch theorem can also be formulated in Bayesian analysis
 terms:
 \begin{theorem}
-  For OTS error, a vertical $P(d|f)$, uniform $P(f)$, and a
-  homogeneous loss $L$, $P(c|d) = \Lambda(c)/r$.
+  For a vertical $P(d|f)$, uniform $P(f)$, and a homogeneous loss $L$,
+  $P(c|d) = \Lambda(c)/r$.
   \label{Pcd}
 \end{theorem}
 
 \begin{proof}
   \begin{equation}
-    E_f\left[P(c|d)\right] = \frac{\int df P(c|d,f) P(f|d)}{\int df}
+    E_f\left[P(c|d)\right] = \frac{\int P(c|d,f) P(f|d) df}{\int df}
   \end{equation}
   Using the Bayes theorem,
   \begin{equation}
@@ -338,32 +339,33 @@ terms:
   \end{equation}
   and uniformity of $P(f)$:
   \begin{equation}
-    E_f\left[P(c|d)\right] = \frac{\int df P(c|d,f) P(f) P(d|f) / P(d)}{\int df} = \alpha(d)
-      \frac{\int df P(c|d,f) P(d|f)}{\int df 1},
+    E_f\left[P(c|d)\right] = \frac{\int P(c|d,f) P(f) P(d|f) / P(d) df }{\int 1 df} = \alpha(d)
+      \frac{\int P(c|d,f) P(d|f) df}{\int 1 df},
   \end{equation}
-  where $\alpha(d)$ is some function. Like in theorem \ref{th:Pcfm},
+  where $\alpha(d)$ is some function. Like in Theorem \ref{th:Pcfm},
   the integral can be split into parts that depend on
   $f\left(x\in d_X\right)$ and $f\left(x\notin d_X\right)$:
   \begin{equation}
-    E_f\left[P(c|d)\right] = \alpha(d) \frac{\int df_{x\notin d_X} P\left(c|d,f \right)
-      \int df_{x \in d_X} P\left(d|f\right)}{\int df_{x\notin d_X} df_{x \in d_X} 1}.
+    E_f\left[P(c|d)\right] = \alpha(d) \frac{\int P\left(c|d,f \right) df_{x\notin d_X}
+      \int P\left(d|f\right) df_{x \in d_X}}{\int 1 df_{x\notin d_X} df_{x \in d_X}}.
   \end{equation}
-  The integral $\int df_{x \in d_X} P\left(d|f\right)$ can again be
+  The integral $\int P\left(d|f\right) df_{x \in d_X}$ can again be
   absorbed into the $d$-dependent constant:
   \begin{equation}
-    E_f\left[P(c|d)\right] = \beta(d) \frac{\int df_{x\notin d_X} P\left(c|d,f \right)
-    }{\int df_{x\notin d_X} df_{x \in d_X} 1} = \frac{\Lambda(c)}{r} \frac{\beta(d)}{\int df_{x \in d_X}}.
+    E_f\left[P(c|d)\right] = \beta(d) \frac{\int P\left(c|d,f \right) df_{x\notin d_X}
+    }{\int 1 df_{x\notin d_X} df_{x \in d_X}} = \frac{\Lambda(c)}{r} \frac{\beta(d)}{\int 1 df_{x \in d_X}}.
     \label{eq:Pcd1}
   \end{equation}
-  To find out the value of the constant, we integrate both sides by $c$:
+  To obtain the value of the constant, we integrate both sides over
+  $c$:
   \begin{equation}
-    \int dc E_f\left[P(c|d)\right] = 1 = \frac{\beta(d)}{\int df_{x \in d_X}}
-    \int dc \frac{\Lambda(c)}{r}.
+    \int E_f\left[P(c|d)\right] dc = 1 = \frac{\beta(d)}{\int 1 df_{x \in d_X}}
+    \int \frac{\Lambda(c)}{r} dc.
   \end{equation}
-  From theorem \ref{th:Pcfm} we know that $\frac{\Lambda(c)}{r}$ is,
-  in fact, a probability, thus $\int dc \frac{\Lambda(c)}{r} =
-  1$. Therefore $\frac{\beta(d)}{\int df_{x \in d_X}} = 1$ as
-  well. Substituting it back to \ref{eq:Pcd1}, we obtain:
+  From Theorem \ref{th:Pcfm} we know that $\frac{\Lambda(c)}{r}$ is,
+  in fact, a probability, thus $\int \frac{\Lambda(c)}{r} dc =
+  1$. Therefore $\frac{\beta(d)}{\int 1 df_{x \in d_X}} = 1$ as
+  well. Substituting it back to Formula \ref{eq:Pcd1}, we obtain:
   
   \begin{equation}
     E_f\left[P(c|d)\right] =  \frac{\Lambda(c)}{r}
@@ -381,16 +383,17 @@ tool to compare algorithms. That is if we are interested in the error
 for $x\notin \{d \cup T\}$, in absence of prior assumptions, the error
 on $T$ is meaningless, no matter how many elements there are in $T$.
 
-No Free Lunch theorems pose a philosophical paradox. The Wolpert's
-paper begins with a quote from David Hume: ``Even after the
-observation of the frequent conjunction of objects, we have no reason
-to draw any inference concerning any object beyond those of which we
-have had experience.'' All our experiences, the training set, belong
-to the past. This includes any ``prior knowledge'' -- that targets
-tend to be smooth, the Occams's razor, etc. The NFL theorems state,
-that even if some knowledge and algorithms allowed you to generalize
-well in the training set (the past), there are no formal guarantees
-about its behavior in the future. So, if we are to subscribe to strict
+The Wolpert's paper begins with a quote from David Hume: ``Even after
+the observation of the frequent conjunction of objects, we have no
+reason to draw any inference concerning any object beyond those of
+which we have had experience.'' In some sense, the paper is a
+refomulation of this thesis in mathmaticl terms. All our experiences,
+the training set, belong to the past. This includes any ``prior
+knowledge''---that targets tend to be smooth, the Occams's razor,
+etc. The NFL theorems state, that even if some knowledge and
+algorithms allowed you to generalize well in the the past (your
+current training set), there are no formal guarantees about its
+behavior in the future. So, if we are to subscribe to strict
 empiricism and do not make any assumptions about the world, we must
 accept that the world is unknowable. On the other hand, if we are to
 claim the ability to predict the future, we must also admit that this
