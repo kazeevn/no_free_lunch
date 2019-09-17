@@ -303,9 +303,9 @@ the same.
   Therefore the integral can be split into two parts, over dimensions
   corresponding to $d_X$ and $\mathbf{X} \setminus d_X$:
   \begin{equation}
-    E_f \left[P\left(c|f,m\right)\right] = \frac{\sum_{d:|d|=m}
-      \left[\int P\left(c|d,f \right) df_{x\notin d_X}
-        \int P\left(d|f\right) df_{x \in d_X} \right]}{\int 1 df_{x\notin d_X} df_{x \in d_X}}
+    E_f \left[P\left(c|f,m\right)\right] = \sum_{d:|d|=m}\left[\frac{
+      \int P\left(c|d,f \right) df_{x\notin d_X}
+        \int P\left(d|f\right) df_{x \in d_X}}{\int 1 df_{x\notin d_X} df_{x \in d_X}}\right]
   \end{equation}
   
   Again using $P\left(c|d, f\right)$ independence from $x\in d_X$ and Lemma \ref{th:Pcdf}:
@@ -315,8 +315,8 @@ the same.
   \end{equation}
   
   \begin{equation}
-    E_f \left[P\left(c|f,m\right)\right] = \Lambda(c)/r \frac{\sum_{d:|d|=m}
-      \left[\int  P\left(d|f\right) df_{x \in d_X} \right]}{\int 1 df_{x \in d_X}} =
+    E_f \left[P\left(c|f,m\right)\right] = \Lambda(c)/r \sum_{d:|d|=m}\left[\frac{
+      \int  P\left(d|f\right) df_{x \in d_X}}{\int 1 df_{x \in d_X}} \right] =
     \Lambda(c)/r
   \end{equation}
 \end{proof}
